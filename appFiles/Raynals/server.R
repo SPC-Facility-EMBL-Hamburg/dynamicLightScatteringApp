@@ -9,8 +9,6 @@ source_python("./simulation_helpers.py")
 source("server_files/simulation_helpers.R")
 
 function(input, output, session) {
-  
-  welcome_message() 
 
   source(paste0(base_dir,"reactives/reactives.R"          ), local = T)
   source(paste0(base_dir,"reactives/plot_reactives.R"     ), local = T)
