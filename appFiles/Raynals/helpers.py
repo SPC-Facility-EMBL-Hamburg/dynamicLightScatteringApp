@@ -91,10 +91,9 @@ def get_beta_prior(g2,time):
     Returns the intercept estimate 
     """
 
-
     npFit     = np.polyfit( time[time < 5*1e-6],np.log(g2[time < 5*1e-6,:] - 1), 2 )
     betaPrior = np.exp(npFit[-1])
-        
+
     return betaPrior
 
 def tikhonov_Phillips_reg(kernel,alpha,data,W):
@@ -150,7 +149,7 @@ def tikhonov_Phillips_reg(kernel,alpha,data,W):
 
     return x, residualNorm, penaltyNorm
 
-def get_contributios_prior(g1_autocorrelation,time,s_space,betaPrior,alpha,weights=None):
+def get_contributios_prior(g1_autocorrelation,time,s_space,alpha,weights=None):
 
     """
         Input -
@@ -158,7 +157,6 @@ def get_contributios_prior(g1_autocorrelation,time,s_space,betaPrior,alpha,weigh
             g1 autocorrelation matrix n-points m-datasets
             time vector of length n
             s_space to create the kernel for the Thinkohonov regularization function
-            betaPrior vector of length m
 
         Returns -
             
@@ -325,8 +323,11 @@ def intensityToMassWeighted(hr,contributions,angle,lambda0,refractiveIndex):
 
         c[c < 0.005] = 0
 
-        intensity = mieIntensity(hr,angle,lambda0,refractiveIndex*180/np.pi)
-        temp      = c * hr**3 / intensity 
-        contributionsMass.append(np.array(temp / np.sum(temp)))
+        intensity = mieIntensity(hr,angle,lambda0,refractiveIndex*180/np.pi).flatten()
+
+        temp          = c * hr**3 / intensity
+        contributions = np.array(temp / np.sum(temp))
+
+        contributionsMass.append(contributions)
 
     return contributionsMass

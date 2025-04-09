@@ -146,7 +146,7 @@ load_Excel_files_without_acquisitions <- function(xlsx_files) {
   
   i <- 0
   for (file in xlsx_files) {
-    
+
     sampleName <- basename(file)
     
     # Load the first sheet into a dataframe
@@ -160,10 +160,12 @@ load_Excel_files_without_acquisitions <- function(xlsx_files) {
     }
     
   }
-  
+
   allData <- filter_corrupt_datasets(allData)
-  
-  return( Reduce(merge, allData) )
+
+  df <- Reduce(merge, allData)
+
+  return( df )
 }
 
 load_Excel_files_with_acquisitions <- function(xlsx_files) {
@@ -576,30 +578,31 @@ formatContributions <- function(estimatedContributions,contributionsAxis,
   # 'contributionsAxis' - should be either 'hr' or 'diff' 
   #     Use 'hr' to return the results as a function of the hydrodynamic radius
   #     and 'diff' to return them as a function of diffusion coefficients
-  
+
   allDFs <- list()
-  
+
   for (i in 1:length(expNames)) {
-    
+
     expName     <- ifelse(length(expNames) == 1,'',expNames[i])
     
     sampleNames <- getConditionNamesFromSamplesMetaData(expName,expTabData[[i]])
-    
+
     estimatedContributionsTemp     <- estimatedContributions[[i]]
     estimatedContributionsTemp     <- do.call(cbind,estimatedContributionsTemp)
 
     data           <- data.frame(contributionsAxis,estimatedContributionsTemp)
-    
+
     colnames(data) <- c(contributionsAxisType,sampleNames)
-    
+
     data <- data[,colnames(data) != 'NA']
+
     data <- reshape2::melt(data,id.vars=contributionsAxisType)
     
     allDFs[[i]] <- data
   }
   
   df <- do.call(rbind,allDFs)
-  
+
   return(df)
   
 }

@@ -110,9 +110,9 @@ observeEvent(input$dlsFiles,{
       
       xlsx_files <- list.files(path = unzipDir, pattern = "\\.xlsx$",
                                recursive = TRUE, full.names = TRUE)
-      
+
       fileType <- detect_Excel_files_type(xlsx_files)
-      
+
       if (fileType == 'Acquisition') {
         
         merged_df <- load_Excel_files_with_acquisitions(xlsx_files)
@@ -491,10 +491,12 @@ dlsDataUpdated <- eventReactive(input$updateInfo,{
     dlsAnalyzer$experimentsOri[[expName]]$predictAutocorrelationCurves()
     dlsAnalyzer$experimentsOri[[expName]]$getMassWeightedContributions()
 
+    Sys.sleep(0.002*nMeasurements)
+
     autocorrelationListPredicted[[expName]] <- dlsAnalyzer$experimentsOri[[expName]]$autocorrelationPredicted
     
     }
-  
+
   # Retrieve the 2nd order autocorrelation data in an useful format
   data <- dlsData(dlsAnalyzer) 
   
@@ -504,27 +506,27 @@ dlsDataUpdated <- eventReactive(input$updateInfo,{
                                            expNames,experimentsSamplesMetaData)
   
   estimatedContributions <- dlsAnalyzer$getExperimentProperties('contributionsGuess')[idx]
-  
+
   estimatedContributionsMassWeighted <- dlsAnalyzer$getExperimentProperties(
     'contributionsGuessMassWeighted')[idx]
   
   contributions          <- formatContributions(estimatedContributions,
                                                 dlsAnalyzer$experimentsOri[[expNames[1]]]$hrs,
                                                 expNames,experimentsSamplesMetaData)
-  
+
   # Contributions as a function of the diffusion coefficients
   contributionsDiff          <- formatContributions(estimatedContributions,
                                                 dlsAnalyzer$experimentsOri[[expNames[1]]]$ds,
                                                 expNames,experimentsSamplesMetaData,
                                                 'diff')
-  
+
   # Mass weighted contributions
   contributionsMass          <- formatContributions(estimatedContributionsMassWeighted,
                                                 dlsAnalyzer$experimentsOri[[expNames[1]]]$hrs,
                                                 expNames,experimentsSamplesMetaData)
 
   nChoices <- length(unique(data$variable))
-  
+
   choices <- get_choices_residuals_plot(nChoices)
   updateSelectInput(session,"residualsPlotSelection",choices = choices)
   
@@ -560,7 +562,7 @@ dlsDataUpdated <- eventReactive(input$updateInfo,{
     allOptimalAlpha <- NULL
     lCurveData      <- NULL
   }
-  
+
   reactives$renderData <- TRUE
     
   return(list("data"=data,"predictedData"=predictedData,

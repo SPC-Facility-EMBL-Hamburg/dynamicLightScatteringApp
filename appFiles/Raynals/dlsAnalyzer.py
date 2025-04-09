@@ -171,7 +171,7 @@ class dls_experiment:
 
         # Return the fitted contributions and residuals of the first order autocorrelation function
         self.contributionsGuess, self.residualsG1, _   = get_contributios_prior(
-            self.g1[selectedTimes,:],self.time[selectedTimes],self.s_space,self.betaGuess,alpha) 
+            self.g1[selectedTimes,:],self.time[selectedTimes],self.s_space,alpha)
 
         return None
 
@@ -203,7 +203,7 @@ class dls_experiment:
 
             _ , residualNorm, penaltyNorm = get_contributios_prior(
                 self.g1[selectedTimes,:],self.time[selectedTimes],
-                self.s_space,self.betaGuess,alpha) 
+                self.s_space,alpha)
           
             curvesResidualNorm.append(residualNorm) # List (one element per alpha) of lists (one element per curve)
             curvesPenaltyNorm.append(penaltyNorm)   # List (one element per alpha) of lists (one element per curve)
@@ -301,11 +301,14 @@ class dls_experiment:
 
         # Return the fitted contributions and residuals of the first order autocorrelation function
         self.contributionsGuess, self.residualsG1   = get_contributios_prior(
-            self.g1[selectedTimes,:],self.time[selectedTimes],self.s_space,self.betaGuess,alpha,self.weights) 
+            self.g1[selectedTimes,:],self.time[selectedTimes],self.s_space,alpha,self.weights)
 
         return None 
 
     def getMassWeightedContributions(self):
+
+        print(self.hrs.shape)
+        print(len(self.contributionsGuess[0]))
 
         self.contributionsGuessMassWeighted = intensityToMassWeighted(self.hrs,self.contributionsGuess,
             self.scatteringAngle,self.lambda0,self.refractiveIndex)
@@ -388,25 +391,38 @@ class dlsAnalyzer:
         return [getattr(self.experimentsOri[experimentName], variable) for experimentName in self.experimentNames]
 
 file = "./www/test.csv"
-file = "/home/osvaldo/Downloads/dls_data_curated_for_raynals/autocorrelation_capillary_4_ApoB100.csv"
 
-#file = "/home/osvaldo/arise/DLS_manuscript/analysisRaynals/SimulatedDataDLS_case2/autocorrelation_2023-02-08.csv"
 if False:
 
     dls = dlsAnalyzer()
-    l = dls.loadExperiment(file,"test")
-
+    l = dls.loadExperiment("www/test.csv", "test")
     d = dls.experimentsOri["test"]
+
+    d.lambda0 = 817  # Laser wavelength in nanometers
+    d.scatteringAngle = 150 / 180 * np.pi  # Angle of detection in radians
+    d.getQ()  # Calculate the Bragg wave vector
+    d.createFittingS_space(0.09, 1e6, 200)  # Discretize the decay rate space we will use for the fitting
     d.setAutocorrelationData()
-    d.lambda0 = 405
-    d.scatteringAngle = 147 / 180 * np.pi
-    d.getQ()
-    d.createFittingS_space(0.09,1e6,200)
     d.getBetaEstimate()
     d.getG1correlation()
     d.getInitialEstimates()
     d.getInitialEstimatesManyAlpha()
     d.getOptimalAlphaLcurve()
     d.getInitialEstimatesOptimalAlphaLcurve()
+    d.getInitialEstimatesManyAlpha()
+    d.predictAutocorrelationCurves()
     d.getMassWeightedContributions()
-    #print(d.contributionsGuessMassWeighted)
+    quit()
+
+    # Plot the experimental versus predicted autocorrelation curves
+    import matplotlib.pyplot as plt
+    plt.plot(d.time, d.autocorrelation[:,1], label='Experimental')
+    plt.plot(d.time, d.autocorrelationPredicted[:,1], label='Predicted')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Autocorrelation')
+    plt.xscale('log')
+    # Show the legends
+    plt.legend()
+    # use log scale for the x-axis
+
+    plt.show()
