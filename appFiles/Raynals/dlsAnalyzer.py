@@ -307,9 +307,6 @@ class dls_experiment:
 
     def getMassWeightedContributions(self):
 
-        print(self.hrs.shape)
-        print(len(self.contributionsGuess[0]))
-
         self.contributionsGuessMassWeighted = intensityToMassWeighted(self.hrs,self.contributionsGuess,
             self.scatteringAngle,self.lambda0,self.refractiveIndex)
 
@@ -390,39 +387,27 @@ class dlsAnalyzer:
 
         return [getattr(self.experimentsOri[experimentName], variable) for experimentName in self.experimentNames]
 
-file = "./www/test.csv"
 
-if False:
 
-    dls = dlsAnalyzer()
-    l = dls.loadExperiment("www/test.csv", "test")
-    d = dls.experimentsOri["test"]
+"""
+dls = dlsAnalyzer()
+l = dls.loadExperiment("www/test.csv", "test")
+d = dls.experimentsOri["test"]
 
-    d.lambda0 = 817  # Laser wavelength in nanometers
-    d.scatteringAngle = 150 / 180 * np.pi  # Angle of detection in radians
-    d.getQ()  # Calculate the Bragg wave vector
-    d.createFittingS_space(0.09, 1e6, 200)  # Discretize the decay rate space we will use for the fitting
-    d.setAutocorrelationData()
-    d.getBetaEstimate()
-    d.getG1correlation()
-    d.getInitialEstimates()
-    d.getInitialEstimatesManyAlpha()
-    d.getOptimalAlphaLcurve()
-    d.getInitialEstimatesOptimalAlphaLcurve()
-    d.getInitialEstimatesManyAlpha()
-    d.predictAutocorrelationCurves()
-    d.getMassWeightedContributions()
-    quit()
-
-    # Plot the experimental versus predicted autocorrelation curves
-    import matplotlib.pyplot as plt
-    plt.plot(d.time, d.autocorrelation[:,1], label='Experimental')
-    plt.plot(d.time, d.autocorrelationPredicted[:,1], label='Predicted')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Autocorrelation')
-    plt.xscale('log')
-    # Show the legends
-    plt.legend()
-    # use log scale for the x-axis
-
-    plt.show()
+d.lambda0 = 817  # Laser wavelength in nanometers
+d.scatteringAngle = 150 / 180 * np.pi  # Angle of detection in radians
+d.getQ()  # Calculate the Bragg wave vector
+d.createFittingS_space(0.09, 1e6, 200)  # Discretize the decay rate space we will use for the fitting
+d.setAutocorrelationData()
+d.getBetaEstimate()
+d.getG1correlation()
+d.getInitialEstimates()
+d.getInitialEstimatesManyAlpha()
+d.getOptimalAlphaLcurve()
+d.getInitialEstimatesOptimalAlphaLcurve()
+d.getInitialEstimatesManyAlpha()
+d.predictAutocorrelationCurves()
+d.getMassWeightedContributions()
+print("here")
+quit()
+"""

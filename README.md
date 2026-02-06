@@ -1,6 +1,6 @@
 # The Raynals app
 
-Last time updated: November 2024
+Last time updated: February 2026
 
 ## Introduction
 
@@ -34,15 +34,7 @@ python3 -m venv /home/${user}/myenv
 /home/${user}/myenv/bin/pip install --prefer-binary --no-cache-dir -r ./appFiles/requirements.txt
 ```
 
-4) Set the correct path for the app
-
-```bash
-if [ "$(basename "$(pwd)")" = "dynamicLightScatteringApp" ]; then
-    sed -i "0,/base_dir <- paste0/s|base_dir <- paste0.*|base_dir <- paste0('$PWD', '/appFiles/Raynals/')|"   appFiles/Raynals/global.R
-else
-    echo "Change the working directory to dynamicLightScatteringApp"
-fi
-```
+4) Set the correct path for the app by changing the variable `base_dir` in the file `appFiles/Raynals/global.R`.
 
 5) Run Raynals
 

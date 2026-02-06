@@ -30,7 +30,7 @@ output$autocorrelation_input_tab <- renderPlotly({
   
   req(reactives$data_loaded)
   data <- dlsData(dlsAnalyzer)
-  
+
   if (is.null(data)) return(NULL) # Return null in the case that there is no data!
   
   fig <- plotAutocorrelation(data,input$plot_width,input$plot_height,

@@ -508,7 +508,7 @@ reshapeAutocorrelationDFAndFilterByTime <- function(data,sampleNames) {
 
 formatDlsInfoForPlotting <- function(autocorrelationList,timeList,
                                      expNames,expTabData,threshold) {
-  
+
   allDFs <- list()
   
   for (i in 1:length(expNames)) {
@@ -914,9 +914,14 @@ dlsData <- function(dlsAnalyzer) {
   idx <- sapply(autocorrelationList, function(x) dim(x)[2] > 0 )
   
   if (sum(idx)==0) return(NULL) # return null in the case that there is no data! 
-  
-  data                   <- formatDlsInfoForPlotting(autocorrelationList[idx],timeList[idx],
-                                                     expNames[idx],experimentsSamplesMetaData[idx])
+
+  # Convert pandas to r, for pandas 3.0
+  experimentsSamplesMetaData <- lapply(experimentsSamplesMetaData, function(py_df) pandas_to_r(py_df))
+
+  data  <- formatDlsInfoForPlotting(
+    autocorrelationList[idx],timeList[idx],
+     expNames[idx],experimentsSamplesMetaData[idx]
+  )
   
   return(data)
 }
@@ -982,7 +987,21 @@ formatNorms <- function(expN,sNames,rn,pn,idSel,alphaVec) {
   return(list('lCurveDf'=df,'dfSel'=dfSel))
 }
 
+pandas_to_r <- function(py_df) {
 
+    cols <- py_df$columns$to_list()
+
+    # Convert each column properly
+    r_list <- lapply(cols, function(col) {
+        as.vector(py_df[[col]]$to_numpy())
+    })
+
+    # Make data.frame and assign names
+    r_df <- as.data.frame(r_list)
+    names(r_df) <- cols
+
+    return(r_df)
+}
 
 
 

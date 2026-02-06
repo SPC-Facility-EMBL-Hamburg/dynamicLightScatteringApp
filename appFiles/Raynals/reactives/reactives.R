@@ -58,7 +58,8 @@ observeEvent(input$GoLoadExample,{
   nMeasurements         <- dlsAnalyzer$experimentsOri[["test"]]$nMeasurements
   numberOfDesiredTables <- get_numberOfDesiredTables(nMeasurements)
   
-  df <- dlsAnalyzer$experimentsOri[["test"]]$sampleInfo
+  py_df <- dlsAnalyzer$experimentsOri[["test"]]$sampleInfo
+  df <- pandas_to_r(py_df)
   
   tables                <- get_Table_list(df$conditions,1,1,numberOfDesiredTables)
   tables                <- split_table_into_list_of_tables(df,numberOfDesiredTables)
@@ -165,10 +166,11 @@ observeEvent(input$dlsFiles,{
     
     numberOfDesiredTables <- get_numberOfDesiredTables(nMeasurements)
     
-    df <- dlsAnalyzer$experimentsOri[[name]]$sampleInfo
-    
-    tables                <- get_Table_list(df$conditions,1,1,numberOfDesiredTables)
-    tables                <- split_table_into_list_of_tables(df,numberOfDesiredTables)
+    py_df <- dlsAnalyzer$experimentsOri[[name]]$sampleInfo
+    df <- pandas_to_r(py_df)
+
+    tables <- get_Table_list(df$conditions,1,1,numberOfDesiredTables)
+    tables <- split_table_into_list_of_tables(df,numberOfDesiredTables)
 
     tabP <- generateTabPanel(numberOfDesiredTables,name)
     appendTab("tabBoxDlsWellsInfo",tabP,select=TRUE)
@@ -271,7 +273,7 @@ observeEvent(input$dlsFilesInfo_cell_edit, {
     
     reads      <- dlsAnalyzer$getExperimentProperties('reads')[idx]
     scans      <- dlsAnalyzer$getExperimentProperties('scans')[idx]
-    sampleInfo <- dlsAnalyzer$getExperimentProperties('sampleInfo')[[idx]]
+    sampleInfo <- pandas_to_r(dlsAnalyzer$getExperimentProperties('sampleInfo')[idx])
 
     reads <- min(reads,nMeasurements)
     scans <- min(scans,nMeasurements)
@@ -326,8 +328,9 @@ observeEvent(input$selectAll,{
   for (i in 1:length(expNames)) {
     
     expName               <- expNames[i]
-    df                    <- experimentsSamplesMetaData[[i]]
-    
+    py_df                 <- experimentsSamplesMetaData[[i]]
+    df <- pandas_to_r(py_df)
+
     df$include            <- include # (Un)select all samples :)
     
     # Update dls sample metadata
@@ -385,7 +388,8 @@ observeEvent(input$applyChanges,{
     maxValuesAfterTimeLimit <- apply(autocorrelationData[timeSel,],2, max)
     selValues <- selValues & (maxValuesAfterTimeLimit < input$bumpRemovalTolerance)
     
-    df                    <- experimentsSamplesMetaData[[i]]
+    py_df                   <- experimentsSamplesMetaData[[i]]
+    df                      <- pandas_to_r(py_df)
 
     nMeasurements         <- ncol(dlsAnalyzer$experimentsOri[[expName]]$autocorrelationOriginal)
     numberOfDesiredTables <- get_numberOfDesiredTables(nMeasurements)
@@ -499,9 +503,12 @@ dlsDataUpdated <- eventReactive(input$updateInfo,{
 
   # Retrieve the 2nd order autocorrelation data in an useful format
   data <- dlsData(dlsAnalyzer) 
-  
-  experimentsSamplesMetaData  <- dlsAnalyzer$getExperimentProperties('sampleInfoRelevant')[idx]
-  
+
+  experimentsSamplesMetaData <- dlsAnalyzer$getExperimentProperties('sampleInfoRelevant')[idx]
+
+  # for pandas 3.0 convert each element (pandas) to an R dataframe
+  experimentsSamplesMetaData <- lapply(experimentsSamplesMetaData,function(x) pandas_to_r(x))
+
   predictedData <- formatDlsPredictedInfoForPlotting(autocorrelationListPredicted,timeList,
                                            expNames,experimentsSamplesMetaData)
   
@@ -556,7 +563,10 @@ dlsDataUpdated <- eventReactive(input$updateInfo,{
     rn     <- dlsAnalyzer$getExperimentProperties("curvesResidualNorm")[idx]
     pn     <- dlsAnalyzer$getExperimentProperties("curvesPenaltyNorm")[idx]
     idSel  <- dlsAnalyzer$getExperimentProperties("alphaOptIdx")[idx]
-    
+
+    # for pandas 3.0 convert each element (pandas) to an R dataframe
+    sNames <- lapply(sNames,function(x) pandas_to_r(x))
+
     lCurveData  <- formatNorms(expN,sNames,rn,pn,idSel,alphaVec)
   } else{
     allOptimalAlpha <- NULL
