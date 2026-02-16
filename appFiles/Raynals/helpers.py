@@ -4,7 +4,6 @@ from scipy import spatial
 
 from scipy.optimize      import nnls
 
-from math import acos, degrees
 
 from simulation_helpers import * 
 
@@ -244,7 +243,7 @@ def cosLawAngle(d1,d2,d3):
     d3 = BC segment
     """
 
-    return (degrees(acos((d1**2 + d2**2 - d3**2)/(2.0 * d1 * d2)))) 
+    return (np.degrees(np.arccos((d1**2 + d2**2 - d3**2)/(2.0 * d1 * d2)))) 
 
 def find_Lcurve_corner(residualsNorm,contributionsNorm):
  
