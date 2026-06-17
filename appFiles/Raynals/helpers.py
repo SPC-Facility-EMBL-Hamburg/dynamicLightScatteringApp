@@ -316,14 +316,19 @@ def intensityToMassWeighted(hr,contributions,angle,lambda0,refractiveIndex):
     Returns the mass weighted contributions 
     """
 
+    try:
+        refractiveIndex = complex(refractiveIndex)
+    except:
+        return None
+
     contributionsMass = []
+
+    intensity = mieIntensity(hr,angle,lambda0,refractiveIndex*180/np.pi).flatten()
 
     for c in contributions:
 
         c[c < 0.005] = 0
-
-        intensity = mieIntensity(hr,angle,lambda0,refractiveIndex*180/np.pi).flatten()
-
+        
         temp          = c * hr**3 / intensity
         contributions = np.array(temp / np.sum(temp))
 

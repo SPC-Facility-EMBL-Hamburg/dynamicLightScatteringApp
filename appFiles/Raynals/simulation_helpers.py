@@ -30,7 +30,11 @@ def generateParticlesPopulation(means,sds,samplesSize):
 
     return np.concatenate(hrDistributions)
 
-def mieIntensity(hr=np.arange(10,1000,1),angle=173,lambda0= 668,refractiveIndex=1.33-0.01j):
+def mieIntensity(
+        hr=np.arange(10,1000,1),
+        angle=173,
+        lambda0=668,
+        refractiveIndex=1.33-0.01j):
 
     """
     Obtain the scattered intensity using Mie Theory at a certain angle & wavelength
@@ -48,11 +52,6 @@ def mieIntensity(hr=np.arange(10,1000,1),angle=173,lambda0= 668,refractiveIndex=
         - The scattered intensity 
     """
 
-    try:
-        refractiveIndex = complex(refractiveIndex)
-    except:
-        return None
-
     mu      = np.cos(angle*np.pi/180) # from degrees    to radians
     hr      = hr/1e-9                 # from nanometers to meters
     lambda0 = lambda0/1e-9            # from nanometers to meters
@@ -63,8 +62,13 @@ def mieIntensity(hr=np.arange(10,1000,1),angle=173,lambda0= 668,refractiveIndex=
 
         x *= 2       # Convert radius to diameter
         size_factor = np.pi/lambda0 * x
-        geometric_cross_section = np.pi * x**2/4 * 1e4                          # cm**2
-        sigma_sca.append(geometric_cross_section * miepython.i_unpolarized(refractiveIndex,size_factor,mu,'qsca'))
+        geometric_cross_section = np.pi * x**2/4 * 1e4     
+                             # cm**2
+        sigma_sca.append(geometric_cross_section * miepython.i_unpolarized(
+            refractiveIndex,
+            size_factor,
+            mu,
+            'qsca'))
 
     sigma_sca = np.array(sigma_sca) 
     
