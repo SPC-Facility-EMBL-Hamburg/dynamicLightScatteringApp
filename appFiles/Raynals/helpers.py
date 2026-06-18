@@ -302,28 +302,19 @@ def find_Lcurve_corner(residualsNorm,contributionsNorm):
 
         return None
 
-def intensityToMassWeighted(hr,contributions,angle,lambda0,refractiveIndex):
+def intensityToMassWeighted(hr,contributions,intensity):
 
     """
     Transform the intensity weighted distribution to a volume (or mass) weighted distribution
 
     Input - hr:                 array of hydrodynamic radius in nanometers
-          - contributions:      array of the contributions of each hr
-          - angle:              detection angle of the DLS instrument in degrees
-          - lambda0:            laser wavelength in nanometers
-          - refractiveIndex:    refractive index of the DLS experiment
+          - contributions:      list of array of the contributions of each hr
+          - intensity:          array of the MIE intensity for each hr
 
     Returns the mass weighted contributions 
     """
 
-    try:
-        refractiveIndex = complex(refractiveIndex)
-    except:
-        return None
-
     contributionsMass = []
-
-    intensity = mieIntensity(hr,angle,lambda0,refractiveIndex*180/np.pi).flatten()
 
     for c in contributions:
 
@@ -331,6 +322,9 @@ def intensityToMassWeighted(hr,contributions,angle,lambda0,refractiveIndex):
         
         temp          = c * hr**3 / intensity
         contributions = np.array(temp / np.sum(temp))
+
+        # Assert that the contributions sum up to 1
+        assert np.isclose(np.sum(contributions),1)
 
         contributionsMass.append(contributions)
 

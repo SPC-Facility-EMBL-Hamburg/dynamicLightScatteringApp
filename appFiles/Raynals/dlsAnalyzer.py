@@ -1,8 +1,16 @@
+import sys
 import numpy as np
 import pandas as pd
 
 from helpers            import *
 from loadDLSdataHelpers import *
+from simulation_helpers import mieIntensity
+
+# Load the MIE intensity lookup table
+mie_lookup_table = np.load('./mie_lookup_table/mie.npy')
+mie_wavelengths = np.load('./mie_lookup_table/wavelengths.npy')
+mie_angles = np.load('./mie_lookup_table/angles.npy')
+mie_hr_values = np.load('./mie_lookup_table/hr_values.npy')
 
 class dls_experiment:
 
@@ -56,6 +64,9 @@ class dls_experiment:
 
         # Predicted data
         self.autocorrelationPredicted = None
+
+        # Signal intensity given by the MIE Theory, used to get mass weighted contributions
+        self.intensity = None
 
         return None
 
@@ -307,8 +318,43 @@ class dls_experiment:
 
     def getMassWeightedContributions(self):
 
-        self.contributionsGuessMassWeighted = intensityToMassWeighted(self.hrs,self.contributionsGuess,
-            self.scatteringAngle,self.lambda0,self.refractiveIndex)
+        # Obtain the MIE intensity for each hydrodynamic radius, which will be used to get mass weighted contributions
+        if self.intensity is None:
+
+            scattering_angle_degrees = self.scatteringAngle * 180 / np.pi
+            scattering_angle_degrees = int(scattering_angle_degrees)
+            print(scattering_angle_degrees)
+
+            # First try to find the intensity in the lookup table
+            c1 = np.isclose(mie_hr_values,self.hrs,atol=1e-4).all() # Check that all the hr values are in the lookup table
+            c2 = scattering_angle_degrees in mie_angles
+            c3 = self.lambda0 in mie_wavelengths
+
+            if c1 and c2 and c3:
+
+                i = np.where(mie_wavelengths == self.lambda0)[0][0]
+                j = np.where(mie_angles == scattering_angle_degrees)[0][0]
+
+                # Remember that the lookup table is in the order of (wavelengths, angles, hr_values)
+                intensity = mie_lookup_table[i,j,:]
+
+            else:
+
+                refractiveIndex = complex(self.refractiveIndex)
+                
+                intensity = mieIntensity(
+                        hr = self.hrs,
+                        angle = scattering_angle_degrees, # From radians to degrees
+                        lambda0 = self.lambda0,
+                        refractiveIndex = refractiveIndex).flatten()
+                
+            self.intensity = intensity
+
+
+        self.contributionsGuessMassWeighted = intensityToMassWeighted(
+            self.hrs,
+            self.contributionsGuess,
+            self.intensity)
 
         return None
 

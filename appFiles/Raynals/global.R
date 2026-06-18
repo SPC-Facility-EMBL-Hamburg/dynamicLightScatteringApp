@@ -7,11 +7,14 @@ invisible(lapply(packages, library, character.only = TRUE))
 appName   <- "Raynals"
 user      <- Sys.info()['user']
 
-reticulate::use_python(paste0("/home/",user,"/myenv/bin/python"), required = TRUE)
+#reticulate::use_python(paste0("/home/",user,"/myenv/bin/python"), required = TRUE)
+reticulate::use_python("/Users/oburastero/myenv/bin/python", required = TRUE)
 
 # developer path
-base_dir <- paste0("/home/",user,"/spc_shiny_servers/dynamicLightScatteringApp/appFiles/",appName,"/")
 base_dir <- paste0("/home/",user,"/dynamicLightScatteringApp/appFiles/",appName,"/")
+
+base_dir <- "/Users/oburastero/Desktop/arise/dynamicLightScatteringApp/appFiles/Raynals/"
+
 
 # path for the docker user
 if (user == 'shiny') {

@@ -493,8 +493,9 @@ dlsDataUpdated <- eventReactive(input$updateInfo,{
     Sys.sleep(0.02*nMeasurements)
     
     dlsAnalyzer$experimentsOri[[expName]]$predictAutocorrelationCurves()
+    print('here1')
     dlsAnalyzer$experimentsOri[[expName]]$getMassWeightedContributions()
-
+    print('here2')
     Sys.sleep(0.002*nMeasurements)
 
     autocorrelationListPredicted[[expName]] <- dlsAnalyzer$experimentsOri[[expName]]$autocorrelationPredicted
